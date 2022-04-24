@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/hafnisulun/shopping-cart/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -32,4 +34,25 @@ func TestCartWithMinQtyPromo(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	a.Equal(http.StatusOK, w.Code)
+
+	// Add "Alexa Speaker" to the cart
+	productUUID, err := uuid.FromString("6bdd17e6-3ed9-4ccd-a69a-1afe1883beca")
+	if err != nil {
+		a.Error(err)
+	}
+
+	item := models.CartItemInput{
+		ProductUUID: productUUID,
+	}
+
+	reqBody, err := json.Marshal(item)
+	if err != nil {
+		a.Error(err)
+	}
+
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", "/v1/carts/"+cart.UUID.String()+"/items", bytes.NewBuffer(reqBody))
+	router.ServeHTTP(w, req)
+
+	a.Equal(http.StatusCreated, w.Code)
 }

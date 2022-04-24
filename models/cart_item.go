@@ -14,3 +14,7 @@ type CartItem struct {
 type CartItemInput struct {
 	ProductUUID uuid.UUID `json:"product_uuid" binding:"required"`
 }
+
+type CartItemResponse struct {
+	Data CartItem `json:"data"`
+}
