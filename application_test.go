@@ -20,8 +20,16 @@ func TestCartWithMinQtyPromo(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/v1/carts", nil)
 	router.ServeHTTP(w, req)
 
-	cart := models.Cart{}
-	json.NewDecoder(w.Body).Decode(&cart)
+	cartResponse := models.CartResponse{}
+	json.NewDecoder(w.Body).Decode(&cartResponse)
+	cart := cartResponse.Data
 
 	a.Equal(http.StatusCreated, w.Code)
+
+	// Get the cart
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/v1/carts/"+cart.UUID.String(), nil)
+	router.ServeHTTP(w, req)
+
+	a.Equal(http.StatusOK, w.Code)
 }

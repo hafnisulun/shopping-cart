@@ -23,7 +23,17 @@ func (r CartController) Create(c *gin.Context) {
 // GET /carts/:cart_uuid
 // Find a cart by UUID
 func (r CartController) FindOne(c *gin.Context) {
-	c.JSON(http.StatusNotImplemented, http.StatusNotImplemented)
+	var cart models.Cart
+
+	// Find the cart
+	if err := models.DB.Preload("Items.Product").
+		Where("uuid = ?", c.Param("cart_uuid")).
+		First(&cart).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, models.CartResponse{Data: cart})
 }
 
 // POST /carts/:cart_uuid/items
