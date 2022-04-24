@@ -36,6 +36,26 @@ func (r CartController) FindOne(c *gin.Context) {
 		return
 	}
 
+	// Calculate total
+	cart.Total = 0
+
+	for _, item := range cart.Items {
+		var itemTotal float64 = item.Product.Price * float64(item.Qty)
+
+		// Check promo "min qty"
+		var minQtyPromo models.MinQtyPromo
+		result := models.DB.
+			Where("product_id = ?", item.Product.ID).
+			Where("qty <= ?", item.Qty).
+			First(&minQtyPromo)
+
+		if result.RowsAffected > 0 {
+			itemTotal -= itemTotal * float64(minQtyPromo.Discount) / 100
+		}
+
+		cart.Total += itemTotal
+	}
+
 	// Send success response
 	c.JSON(http.StatusOK, models.CartResponse{Data: cart})
 }
