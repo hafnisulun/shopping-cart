@@ -70,7 +70,7 @@ func (r CartController) CreateItem(c *gin.Context) {
 
 	// Check if the product already in the cart
 	var item models.CartItem
-	result := models.DB.
+	result := models.DB.Preload("Product").
 		Where("cart_id = ?", cart.ID).
 		Where("product_id = ?", product.ID).
 		Find(&item)
@@ -87,6 +87,7 @@ func (r CartController) CreateItem(c *gin.Context) {
 		item = models.CartItem{
 			CartID:    cart.ID,
 			ProductID: product.ID,
+			Product:   product,
 			Qty:       1,
 		}
 		if err := models.DB.Create(&item).Error; err != nil {
