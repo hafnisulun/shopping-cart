@@ -42,9 +42,24 @@ func (r CartController) FindOne(c *gin.Context) {
 	for _, item := range cart.Items {
 		var itemTotal float64 = item.Product.Price * float64(item.Qty)
 
+		// Check promo "buy A get B"
+		var buyAGetBPromo models.BuyAGetBPromo
+		result := models.DB.
+			Where("get_product_id = ?", item.ProductID).
+			Where("get_qty <= ?", item.Qty).
+			First(&buyAGetBPromo)
+
+		if result.RowsAffected > 0 {
+			for _, scannedItem := range cart.Items {
+				if scannedItem.ProductID == buyAGetBPromo.BuyProductID && scannedItem.Qty >= buyAGetBPromo.BuyQty {
+					itemTotal = item.Product.Price * float64(item.Qty-buyAGetBPromo.GetQty)
+				}
+			}
+		}
+
 		// Check promo "min qty"
 		var minQtyPromo models.MinQtyPromo
-		result := models.DB.
+		result = models.DB.
 			Where("product_id = ?", item.Product.ID).
 			Where("qty <= ?", item.Qty).
 			First(&minQtyPromo)
