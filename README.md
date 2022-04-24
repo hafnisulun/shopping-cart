@@ -4,7 +4,15 @@ Shopping Cart provides APIs of shopping cart system built with Go
 
 # Contents
 
-[TOC]
+* [Installation](#installation)
+  * [Setup database](#setup-database)
+  * [Import data](#import-data)
+  * [Set environment variables](#set-environment-variables)
+* [Run](#run)
+  * [Run without build](#run-without-build)
+  * [Build](#build)
+  * [Run with binary build](#run-with-binary-build)
+  * [Test](#test)
 
 # Installation
 
