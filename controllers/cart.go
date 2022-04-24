@@ -50,9 +50,15 @@ func (r CartController) FindOne(c *gin.Context) {
 			First(&buyAGetBPromo)
 
 		if result.RowsAffected > 0 {
-			for _, scannedItem := range cart.Items {
-				if scannedItem.ProductID == buyAGetBPromo.BuyProductID && scannedItem.Qty >= buyAGetBPromo.BuyQty {
+			if buyAGetBPromo.BuyProductID == buyAGetBPromo.GetProductID {
+				if item.Qty >= buyAGetBPromo.BuyQty+buyAGetBPromo.GetQty {
 					itemTotal = item.Product.Price * float64(item.Qty-buyAGetBPromo.GetQty)
+				}
+			} else {
+				for _, scannedItem := range cart.Items {
+					if scannedItem.ProductID == buyAGetBPromo.BuyProductID && scannedItem.Qty >= buyAGetBPromo.BuyQty {
+						itemTotal = item.Product.Price * float64(item.Qty-buyAGetBPromo.GetQty)
+					}
 				}
 			}
 		}
