@@ -56,6 +56,18 @@ func TestCartWithBuyAGetBPromo(t *testing.T) {
 
 	a.Equal(http.StatusCreated, w.Code)
 
+	// Get the cart
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/v1/carts/"+cart.UUID.String(), nil)
+	router.ServeHTTP(w, req)
+
+	cartResponse = models.CartResponse{}
+	json.NewDecoder(w.Body).Decode(&cartResponse)
+	cart = cartResponse.Data
+
+	a.Equal(http.StatusOK, w.Code)
+	a.Equal(5399.99, cart.Total)
+
 	// Add "Raspberry Pi B" to the cart
 	productUUID, err = uuid.FromString("ff11dc2a-c15c-4720-8cb8-abf74f38ccf8")
 	if err != nil {
@@ -77,7 +89,7 @@ func TestCartWithBuyAGetBPromo(t *testing.T) {
 
 	a.Equal(http.StatusCreated, w.Code)
 
-	// Get the cart
+	// Get the final cart
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/v1/carts/"+cart.UUID.String(), nil)
 	router.ServeHTTP(w, req)
@@ -229,12 +241,36 @@ func TestCartWithMinQtyPromo(t *testing.T) {
 
 	a.Equal(http.StatusCreated, w.Code)
 
+	// Get the cart
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/v1/carts/"+cart.UUID.String(), nil)
+	router.ServeHTTP(w, req)
+
+	cartResponse = models.CartResponse{}
+	json.NewDecoder(w.Body).Decode(&cartResponse)
+	cart = cartResponse.Data
+
+	a.Equal(http.StatusOK, w.Code)
+	a.Equal(109.50, cart.Total)
+
 	// Add "Alexa Speaker" to the cart (2 of 3)
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("POST", "/v1/carts/"+cart.UUID.String()+"/items", bytes.NewBuffer(reqBody))
 	router.ServeHTTP(w, req)
 
 	a.Equal(http.StatusCreated, w.Code)
+
+	// Get the cart
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/v1/carts/"+cart.UUID.String(), nil)
+	router.ServeHTTP(w, req)
+
+	cartResponse = models.CartResponse{}
+	json.NewDecoder(w.Body).Decode(&cartResponse)
+	cart = cartResponse.Data
+
+	a.Equal(http.StatusOK, w.Code)
+	a.Equal(219.00, cart.Total)
 
 	// Add "Alexa Speaker" to the cart (3 of 3)
 	w = httptest.NewRecorder()
@@ -243,7 +279,7 @@ func TestCartWithMinQtyPromo(t *testing.T) {
 
 	a.Equal(http.StatusCreated, w.Code)
 
-	// Get the cart
+	// Get the final cart
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/v1/carts/"+cart.UUID.String(), nil)
 	router.ServeHTTP(w, req)
